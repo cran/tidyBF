@@ -22,7 +22,7 @@
 #' # for reproducibility
 #' set.seed(123)
 #'
-#' # to get caption (default)
+#' # to see results
 #' bf_corr_test(
 #'   data = anscombe,
 #'   x = x1,
@@ -30,12 +30,13 @@
 #'   bf.prior = 1
 #' )
 #'
-#' # to see results
+#' # to get caption
 #' bf_corr_test(
 #'   data = anscombe,
 #'   x = x1,
 #'   y = y4,
-#'   bf.prior = 0.8
+#'   bf.prior = 0.8,
+#'   output = "null"
 #' )
 #' @export
 
@@ -46,21 +47,9 @@ bf_corr_test <- function(data,
                          bf.prior = 0.707,
                          caption = NULL,
                          output = "results",
+                         hypothesis.text = TRUE,
                          k = 2,
                          ...) {
-
-  # make sure both quoted and unquoted arguments are allowed
-  c(x, y) %<-% c(rlang::ensym(x), rlang::ensym(y))
-
-  # ============================ data preparation ==========================
-
-  # creating a dataframe
-  data %<>%
-    dplyr::select(.data = ., {{ x }}, {{ y }}) %>%
-    tidyr::drop_na(data = .) %>%
-    tibble::as_tibble(.)
-
-  # ========================= subtitle preparation ==========================
 
   # extracting results from Bayesian test and creating a dataframe
   bf.df <-
@@ -81,12 +70,11 @@ bf_corr_test <- function(data,
       bf_expr(
         bf.df = bf.df,
         output = output,
+        hypothesis.text = hypothesis.text,
         k = k,
         caption = caption
       )
   }
-
-  # ============================ return ==================================
 
   # return the text results or the dataframe with results
   return(switch(

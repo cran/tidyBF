@@ -2,13 +2,13 @@
 % Please edit documentation in R/bf_meta.R
 \name{bf_meta}
 \alias{bf_meta}
-\title{Bayes factor message for random-effects meta-analysis}
+\title{Bayes factor for random-effects meta-analysis}
 \usage{
 bf_meta(
   data,
   d = prior("norm", c(mean = 0, sd = 0.3)),
   tau = prior("invgamma", c(shape = 1, scale = 0.15)),
-  k = 2,
+  k = 2L,
   output = "results",
   caption = NULL,
   messages = TRUE,
@@ -41,8 +41,7 @@ expression with evidence in favor of the alternative hypothesis, or
 \item{caption}{Text to display as caption (will be displayed on top of the
 Bayes Factor caption/message).}
 
-\item{messages}{Decides whether messages references, notes, and warnings are
-to be displayed (Default: \code{TRUE}).}
+\item{messages}{Deprecated. Retained only for backward compatibility.}
 
 \item{...}{
   Arguments passed on to \code{\link[metaBMA:meta_random]{metaBMA::meta_random}}
@@ -77,7 +76,7 @@ study in random-effects meta-analysis.}
   }}
 }
 \description{
-Bayes factor message for random-effects meta-analysis
+Bayes factor for random-effects meta-analysis
 }
 \examples{
 

@@ -1,7 +1,7 @@
 Type: Package
 Package: tidyBF
 Title: Tidy Wrapper for 'BayesFactor' Package
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person(given = "Indrajeet",
            family = "Patil",
@@ -20,16 +20,15 @@ URL: https://indrajeetpatil.github.io/tidyBF/,
         https://github.com/IndrajeetPatil/tidyBF
 BugReports: https://github.com/IndrajeetPatil/tidyBF/issues
 Depends: R (>= 3.5.0)
-Imports: BayesFactor, broomExtra, dplyr, ipmisc, metaBMA, rlang,
-        tibble, tidyr
+Imports: BayesFactor, dplyr, ipmisc, metaBMA, rlang, tidyr
 Suggests: ggplot2, knitr, rmarkdown, spelling, testthat
 Encoding: UTF-8
 Language: en-US
 LazyData: true
 RoxygenNote: 7.1.0.9000
 NeedsCompilation: no
-Packaged: 2020-03-18 20:51:36 UTC; inp099
+Packaged: 2020-04-11 09:59:52 UTC; inp099
 Author: Indrajeet Patil [aut, cre, ctb]
     (<https://orcid.org/0000-0003-1995-6531>)
 Repository: CRAN
-Date/Publication: 2020-03-20 14:50:02 UTC
+Date/Publication: 2020-04-11 10:30:02 UTC

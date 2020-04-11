@@ -2,7 +2,7 @@
 % Please edit documentation in R/bf_oneway_anova.R
 \name{bf_oneway_anova}
 \alias{bf_oneway_anova}
-\title{Bayesian one-way analysis of variance.}
+\title{Bayesian one-way analysis of variance}
 \usage{
 bf_oneway_anova(
   data,
@@ -11,6 +11,7 @@ bf_oneway_anova(
   bf.prior = 0.707,
   caption = NULL,
   output = "results",
+  hypothesis.text = TRUE,
   paired = FALSE,
   k = 2,
   ...
@@ -37,6 +38,11 @@ or \code{"alternative"} (or \code{"title"} or \code{"H1"} or \code{"h1"}), which
 expression with evidence in favor of the alternative hypothesis, or
 \code{"results"}, which will return a dataframe with results all the details).}
 
+\item{hypothesis.text}{Logical that decides whether the expression containing
+result should have text to describe the hypothesis test being described.
+For \code{output = "null"}, this is \code{"In favor of null: "}, otherwise
+\code{"In favor of alternative: "}.}
+
 \item{paired}{if \code{TRUE}, observations are paired}
 
 \item{k}{Number of digits after decimal point (should be an integer)
@@ -45,7 +51,7 @@ expression with evidence in favor of the alternative hypothesis, or
 \item{...}{Additional arguments.}
 }
 \description{
-Bayesian one-way analysis of variance.
+Bayesian one-way analysis of variance
 }
 \examples{
 \donttest{
@@ -57,8 +63,7 @@ bf_oneway_anova(
   data = iris,
   x = Species,
   y = Sepal.Length,
-  bf.prior = 0.8,
-  output = "results"
+  bf.prior = 0.8
 )
 
 # within-subjects -------------------------------------------------------

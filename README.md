@@ -1,9 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `tidyBF`: Grouped statistical analysis in a tidy way
+# `tidyBF`: Tidy Wrapper for `BayesFactor` Package
 
-[![packageversion](https://img.shields.io/badge/Package%20version-0.1.0.9000-orange.svg?style=flat-square)](https://github.com/IndrajeetPatil/tidyBF/commits/master)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.2.0.9000-orange.svg?style=flat-square)](https://github.com/IndrajeetPatil/tidyBF/commits/master)
 [![Daily downloads
 badge](https://cranlogs.r-pkg.org/badges/last-day/tidyBF?color=blue)](https://CRAN.R-project.org/package=tidyBF)
 [![Weekly downloads
@@ -21,7 +21,7 @@ Status](https://ci.appveyor.com/api/projects/status/github/IndrajeetPatil/tidyBF
 [![Project Status: Active - The project has reached a stable, usable
 state and is being actively
 developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2020--03--18-yellowgreen.svg)](https://github.com/IndrajeetPatil/tidyBF/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2020--04--09-yellowgreen.svg)](https://github.com/IndrajeetPatil/tidyBF/commits/master)
 [![minimal R
 version](https://img.shields.io/badge/R%3E%3D-3.5.0-6666ff.svg)](https://cran.r-project.org/)
 [![Coverage
@@ -29,21 +29,21 @@ Status](https://img.shields.io/codecov/c/github/IndrajeetPatil/tidyBF/master.svg
 [![Coverage
 Status](https://coveralls.io/repos/github/IndrajeetPatil/tidyBF/badge.svg?branch=master)](https://coveralls.io/github/IndrajeetPatil/tidyBF?branch=master)
 
-# Overview
+# Overview <img src="man/figures/logo.png" align="right" width="240" />
 
-`tidyBF` package is a tidy wrapper around `BayesFactor` package that
+`tidyBF` package is a tidy wrapper around the `BayesFactor` package that
 always expects the data to be in the tidy format and return a tibble
 containing Bayes Factor values. Additionally, it provides a more
 consistent syntax and by default returns a dataframe with rich details.
 These functions can also return expressions containing results from
-Bayes Factor tests that can then be displayed on custom plots.
+Bayes Factor tests that can then be displayed in custom plots.
 
 # Installation
 
 To get the latest, stable `CRAN` release:
 
 ``` r
-install.packages(pkgs = "tidyBF")
+install.packages("tidyBF")
 ```
 
 You can get the **development** version of the package from `GitHub`. To
@@ -55,7 +55,7 @@ If you are in hurry and want to reduce the time of installation, prefer-
 
 ``` r
 # needed package to download from GitHub repo
-install.packages(pkgs = "remotes")
+install.packages("remotes")
 
 remotes::install_github(
   repo = "IndrajeetPatil/tidyBF", # package path on GitHub
@@ -117,16 +117,22 @@ library(tidyBF)
 # independent t-test
 bf_ttest(data = mtcars, x = am, y = wt)
 #> # A tibble: 1 x 8
-#>    bf10     error    bf01 log_e_bf10 log_e_bf01 log_10_bf10 log_10_bf01 bf.prior
-#>   <dbl>     <dbl>   <dbl>      <dbl>      <dbl>       <dbl>       <dbl>    <dbl>
-#> 1 1383.   3.41e-9 7.23e-4       7.23      -7.23        3.14       -3.14    0.707
+#>    bf10         error     bf01 log_e_bf10 log_e_bf01 log_10_bf10 log_10_bf01
+#>   <dbl>         <dbl>    <dbl>      <dbl>      <dbl>       <dbl>       <dbl>
+#> 1 1383. 0.00000000341 0.000723       7.23      -7.23        3.14       -3.14
+#>   bf.prior
+#>      <dbl>
+#> 1    0.707
 
 # paired t-test
 bf_ttest(data = sleep, x = group, y = extra, paired = TRUE)
 #> # A tibble: 1 x 8
-#>    bf10      error   bf01 log_e_bf10 log_e_bf01 log_10_bf10 log_10_bf01 bf.prior
-#>   <dbl>      <dbl>  <dbl>      <dbl>      <dbl>       <dbl>       <dbl>    <dbl>
-#> 1  17.3    1.68e-7 0.0579       2.85      -2.85        1.24       -1.24    0.707
+#>    bf10       error   bf01 log_e_bf10 log_e_bf01 log_10_bf10 log_10_bf01
+#>   <dbl>       <dbl>  <dbl>      <dbl>      <dbl>       <dbl>       <dbl>
+#> 1  17.3 0.000000168 0.0579       2.85      -2.85        1.24       -1.24
+#>   bf.prior
+#>      <dbl>
+#> 1    0.707
 ```
 
 ## Expressions for plots
@@ -139,16 +145,28 @@ use it to extract expressions that can be displayed in plots.
 set.seed(123)
 library(ggplot2)
 
-# two-sample t-test results in an expression
-stats_exp <- bf_ttest(mtcars, am, wt, output = "alternative")
-
 # using the expression to display details in a plot
-ggplot(mtcars, aes(as.factor(am), wt)) +
-  geom_boxplot() +
-  labs(subtitle = stats_exp)
+ggplot(ToothGrowth, aes(supp, len)) +
+  geom_boxplot() + # two-sample t-test results in an expression
+  labs(subtitle = bf_ttest(ToothGrowth, supp, len, output = "alternative"))
 ```
 
 <img src="man/figures/README-expr_plot-1.png" width="100%" />
+
+Here is another example:
+
+``` r
+# setup
+set.seed(123)
+library(ggplot2)
+
+# using the expression to display details in a plot
+ggplot(mtcars, aes(wt, mpg)) + # Pearson's r results in an expression
+  geom_point() +
+  labs(subtitle = bf_corr_test(mtcars, wt, mpg, output = "null", hypothesis.text = FALSE))
+```
+
+<img src="man/figures/README-expr_plot2-1.png" width="100%" />
 
 ## Dataframe with all the details
 
@@ -195,6 +213,11 @@ bf_corr_test(iris, Sepal.Length, Petal.Length, bf.prior = 0.333)
 Note that the log-transformed values are helpful because in case of
 strong effects, the raw Bayes Factor values can be pretty large, but the
 log-transformed values continue to remain easy to work with.
+
+# Acknowledgments
+
+The hexsticker was generously designed by Sarah Otterstetter (Max Planck
+Institute for Human Development, Berlin).
 
 # Code of Conduct
 

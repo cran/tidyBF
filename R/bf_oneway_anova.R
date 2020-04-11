@@ -1,4 +1,4 @@
-#' @title Bayesian one-way analysis of variance.
+#' @title Bayesian one-way analysis of variance
 #' @name bf_oneway_anova
 #'
 #' @importFrom BayesFactor anovaBF
@@ -25,8 +25,7 @@
 #'   data = iris,
 #'   x = Species,
 #'   y = Sepal.Length,
-#'   bf.prior = 0.8,
-#'   output = "results"
+#'   bf.prior = 0.8
 #' )
 #'
 #' # within-subjects -------------------------------------------------------
@@ -46,6 +45,7 @@ bf_oneway_anova <- function(data,
                             bf.prior = 0.707,
                             caption = NULL,
                             output = "results",
+                            hypothesis.text = TRUE,
                             paired = FALSE,
                             k = 2,
                             ...) {
@@ -59,7 +59,7 @@ bf_oneway_anova <- function(data,
   data %<>%
     dplyr::select(.data = ., {{ x }}, {{ y }}) %>%
     dplyr::mutate(.data = ., {{ x }} := droplevels(as.factor({{ x }}))) %>%
-    tibble::as_tibble(.)
+    as_tibble(.)
 
   # ========================= within-subjects design ==========================
 
@@ -114,6 +114,7 @@ bf_oneway_anova <- function(data,
       bf_expr(
         bf.df = bf.df,
         output = output,
+        hypothesis.text = hypothesis.text,
         k = k,
         caption = caption
       )

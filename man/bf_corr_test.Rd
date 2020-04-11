@@ -11,6 +11,7 @@ bf_corr_test(
   bf.prior = 0.707,
   caption = NULL,
   output = "results",
+  hypothesis.text = TRUE,
   k = 2,
   ...
 )
@@ -39,6 +40,11 @@ or \code{"alternative"} (or \code{"title"} or \code{"H1"} or \code{"h1"}), which
 expression with evidence in favor of the alternative hypothesis, or
 \code{"results"}, which will return a dataframe with results all the details).}
 
+\item{hypothesis.text}{Logical that decides whether the expression containing
+result should have text to describe the hypothesis test being described.
+For \code{output = "null"}, this is \code{"In favor of null: "}, otherwise
+\code{"In favor of alternative: "}.}
+
 \item{k}{Number of digits after decimal point (should be an integer)
 (Default: \code{k = 2}).}
 
@@ -51,7 +57,7 @@ Bayesian correlation test.
 # for reproducibility
 set.seed(123)
 
-# to get caption (default)
+# to see results
 bf_corr_test(
   data = anscombe,
   x = x1,
@@ -59,12 +65,13 @@ bf_corr_test(
   bf.prior = 1
 )
 
-# to see results
+# to get caption
 bf_corr_test(
   data = anscombe,
   x = x1,
   y = y4,
-  bf.prior = 0.8
+  bf.prior = 0.8,
+  output = "null"
 )
 }
 \seealso{

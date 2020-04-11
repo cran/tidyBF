@@ -1,16 +1,13 @@
-#' @title Bayes factor message for random-effects meta-analysis
+#' @title Bayes factor for random-effects meta-analysis
 #' @name bf_meta
 #'
 #' @importFrom metaBMA meta_random prior
-#'
-#' @inherit metaBMA::meta_random return Description
 #'
 #' @param data A dataframe. It **must** contain columns named `estimate` (effect
 #'   sizes or outcomes)  and `std.error` (corresponding standard errors). These
 #'   two columns will be used for `yi`  and `sei` arguments in `metafor::rma`
 #'   (for parametric analysis) or `metaplus::metaplus` (for robust analysis).
-#' @param messages Decides whether messages references, notes, and warnings are
-#'   to be displayed (Default: `TRUE`).
+#' @param messages Deprecated. Retained only for backward compatibility.
 #' @inheritParams bf_expr
 #' @inheritParams metaBMA::meta_random
 #' @inheritDotParams metaBMA::meta_random -y -SE
@@ -63,7 +60,7 @@
 bf_meta <- function(data,
                     d = prior("norm", c(mean = 0, sd = 0.3)),
                     tau = prior("invgamma", c(shape = 1, scale = 0.15)),
-                    k = 2,
+                    k = 2L,
                     output = "results",
                     caption = NULL,
                     messages = TRUE,
@@ -84,19 +81,16 @@ bf_meta <- function(data,
       ...
     )
 
-  # print results from meta-analysis
-  if (isTRUE(messages)) print(meta_res)
-
   #----------------------- preparing caption -------------------------------
 
   # creating a dataframe with posterior estimates
   df_estimates <-
-    tibble::as_tibble(meta_res$estimates, rownames = "term") %>%
+    as_tibble(meta_res$estimates, rownames = "term") %>%
     dplyr::filter(.data = ., term == "d")
 
   # dataframe with bayes factors
   bf.df <-
-    dplyr::tibble(bf10 = meta_res$BF["random_H1", "random_H0"]) %>%
+    tibble(bf10 = meta_res$BF["random_H1", "random_H0"]) %>%
     bf_formatter(.)
 
   # changing aspects of the caption based on what output is needed
@@ -149,22 +143,4 @@ bf_meta <- function(data,
     "results" = bf.df,
     bf_message
   ))
-}
-
-
-#' @noRd
-
-meta_data_check <- function(data) {
-  # check if the two columns needed are present
-  if (sum(c("estimate", "std.error") %in% names(data)) != 2) {
-    # inform the user that skipping labels for the same reason
-    stop(message(cat(
-      ipmisc::red("Error"),
-      ipmisc::blue(": The dataframe must contain the following two columns:\n"),
-      ipmisc::blue("`estimate` and `std.error`."),
-      sep = ""
-    )),
-    call. = FALSE
-    )
-  }
 }
