@@ -2,8 +2,7 @@
 % Please edit documentation in R/bf_contingency_tab.R
 \name{bf_contingency_tab}
 \alias{bf_contingency_tab}
-\alias{bf_onesample_proptest}
-\title{Bayesian contingency table analysis}
+\title{Bayes Factor for contingency table analysis}
 \usage{
 bf_contingency_tab(
   data,
@@ -14,23 +13,8 @@ bf_contingency_tab(
   sampling.plan = "indepMulti",
   fixed.margin = "rows",
   prior.concentration = 1,
-  caption = NULL,
-  output = "results",
-  k = 2L,
-  ...
-)
-
-bf_onesample_proptest(
-  data,
-  x,
-  y = NULL,
-  counts = NULL,
-  ratio = NULL,
-  sampling.plan = "indepMulti",
-  fixed.margin = "rows",
-  prior.concentration = 1,
-  caption = NULL,
-  output = "results",
+  top.text = NULL,
+  output = "dataframe",
   k = 2L,
   ...
 )
@@ -47,7 +31,7 @@ of fit test) will be run for the \code{main} variable. Otherwise an appropriate
 association test will be run.}
 
 \item{counts}{A string naming a variable in data containing counts, or \code{NULL}
-if each row represents a single observation (Default).}
+if each row represents a single observation.}
 
 \item{ratio}{A vector of proportions: the expected proportions for the
 proportion test (should sum to 1). Default is \code{NULL}, which means the null
@@ -68,27 +52,31 @@ to \code{1} by default. It indexes the expected deviation from the null
 hypothesis under the alternative, and corresponds to Gunel and Dickey's
 (1974) \code{"a"} parameter.}
 
-\item{caption}{Text to display as caption (will be displayed on top of the
-Bayes Factor caption/message).}
+\item{top.text}{Text to display as top.text (will be displayed on top of the
+Bayes Factor top.text/message).}
 
-\item{output}{Can either be \code{"null"} (or \code{"caption"} or \code{"H0"} or \code{"h0"}),
-which will return expression with evidence in favor of the null hypothesis,
-or \code{"alternative"} (or \code{"title"} or \code{"H1"} or \code{"h1"}), which will return
-expression with evidence in favor of the alternative hypothesis, or
-\code{"results"}, which will return a dataframe with results all the details).}
+\item{output}{If \code{"expression"}, will return expression with statistical
+details, while \code{"dataframe"} will return a dataframe containing the
+results.}
 
 \item{k}{Number of digits after decimal point (should be an integer)
 (Default: \code{k = 2L}).}
 
-\item{...}{further arguments to be passed to or from methods.}
+\item{...}{
+  Arguments passed on to \code{\link[=bf_extractor]{bf_extractor}}
+  \describe{
+    \item{\code{conf.level}}{Confidence/Credible Interval (CI) level. Default to \code{0.95}
+(\verb{95\%}).}
+    \item{\code{centrality}}{The point-estimates (centrality indices) to compute.
+Character (vector) or list with one or more of these options: \code{"median"},
+\code{"mean"}, \code{"MAP"} or \code{"all"}.}
+    \item{\code{conf.method}}{The type of index used for Credible Interval. Can be
+\code{"hdi"} (default, see \code{\link[bayestestR:hdi]{bayestestR::hdi()}}), \code{"eti"} (see
+\code{\link[bayestestR:eti]{bayestestR::eti()}}) or \code{"si"} (see \code{\link[bayestestR:si]{bayestestR::si()}}).}
+  }}
 }
 \description{
-Bayesian contingency table analysis
-}
-\note{
-Bayes Factor for goodness of fit test is based on gist provided by
-Richard Morey:
-\url{https://gist.github.com/richarddmorey/a4cd3a2051f373db917550d67131dba4}.
+Bayes Factor for contingency table analysis
 }
 \examples{
 # for reproducibility
@@ -97,30 +85,22 @@ library(tidyBF)
 
 # ------------------ association tests --------------------------------
 
-# to get caption (in favor of null)
+# to get dataframe
 bf_contingency_tab(
   data = mtcars,
   x = am,
   y = cyl,
-  fixed.margin = "cols"
-)
-
-# to see results
-bf_contingency_tab(
-  data = mtcars,
-  x = am,
-  y = cyl,
-  sampling.plan = "jointMulti",
-  fixed.margin = "rows",
-  prior.concentration = 1
+  output = "dataframe"
 )
 
 # ------------------ goodness of fit tests --------------------------------
 
+# to get expression
 bf_contingency_tab(
   data = mtcars,
   x = am,
-  prior.concentration = 10
+  prior.concentration = 10,
+  output = "expression"
 )
 }
 \seealso{

@@ -4,10 +4,40 @@
 \alias{bf_extractor}
 \title{Extract Bayes Factors from \code{BayesFactor} model object.}
 \usage{
-bf_extractor(bf.object, ...)
+bf_extractor(
+  bf.object,
+  conf.method = "hdi",
+  centrality = "median",
+  conf.level = 0.95,
+  k = 2L,
+  top.text = NULL,
+  output = "dataframe",
+  ...
+)
 }
 \arguments{
 \item{bf.object}{An object from \code{BayesFactor} package.}
+
+\item{conf.method}{The type of index used for Credible Interval. Can be
+\code{"hdi"} (default, see \code{\link[bayestestR:hdi]{bayestestR::hdi()}}), \code{"eti"} (see
+\code{\link[bayestestR:eti]{bayestestR::eti()}}) or \code{"si"} (see \code{\link[bayestestR:si]{bayestestR::si()}}).}
+
+\item{centrality}{The point-estimates (centrality indices) to compute.
+Character (vector) or list with one or more of these options: \code{"median"},
+\code{"mean"}, \code{"MAP"} or \code{"all"}.}
+
+\item{conf.level}{Confidence/Credible Interval (CI) level. Default to \code{0.95}
+(\verb{95\%}).}
+
+\item{k}{Number of digits after decimal point (should be an integer)
+(Default: \code{k = 2L}).}
+
+\item{top.text}{Text to display as top.text (will be displayed on top of the
+Bayes Factor top.text/message).}
+
+\item{output}{If \code{"expression"}, will return expression with statistical
+details, while \code{"dataframe"} will return a dataframe containing the
+results.}
 
 \item{...}{Additional arguments passed to
 \code{\link[parameters:model_parameters.BFBayesFactor]{parameters::model_parameters.BFBayesFactor()}}.}
@@ -16,10 +46,12 @@ bf_extractor(bf.object, ...)
 Extract Bayes Factors from \code{BayesFactor} model object.
 }
 \note{
-\emph{Important}: don't enter \code{1/bf_obj} to extract results for null
+\emph{Important}: don't enter \code{1/bf.object} to extract results for null
 hypothesis; doing so will return wrong results.
 }
 \examples{
+# setup
+library(tidyBF)
 set.seed(123)
 
 # creating a `BayesFactor` object

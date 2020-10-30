@@ -1,4 +1,4 @@
-#' @title Bayesian contingency table analysis
+#' @title Bayes Factor for contingency table analysis
 #' @name bf_contingency_tab
 #'
 #' @inheritParams BayesFactor::contingencyTableBF
@@ -24,18 +24,17 @@
 #'   This means if there are two levels this will be `ratio = c(0.5,0.5)` or if
 #'   there are four levels this will be `ratio = c(0.25,0.25,0.25,0.25)`, etc.
 #' @param counts A string naming a variable in data containing counts, or `NULL`
-#'   if each row represents a single observation (Default).
+#'   if each row represents a single observation.
+#' @inheritParams bf_extractor
+#' @inheritDotParams bf_extractor -bf.object
 #'
 #' @importFrom BayesFactor contingencyTableBF logMeanExpLogs
-#' @importFrom dplyr pull select rename mutate tibble
+#' @importFrom dplyr pull select rename mutate
 #' @importFrom tidyr uncount drop_na
+#' @importFrom stats dmultinom rgamma
 #'
 #' @seealso \code{\link{bf_corr_test}}, \code{\link{bf_oneway_anova}},
 #' \code{\link{bf_ttest}}
-#'
-#' @note Bayes Factor for goodness of fit test is based on gist provided by
-#'   Richard Morey:
-#'   \url{https://gist.github.com/richarddmorey/a4cd3a2051f373db917550d67131dba4}.
 #'
 #' @examples
 #' # for reproducibility
@@ -44,30 +43,22 @@
 #'
 #' # ------------------ association tests --------------------------------
 #'
-#' # to get caption (in favor of null)
+#' # to get dataframe
 #' bf_contingency_tab(
 #'   data = mtcars,
 #'   x = am,
 #'   y = cyl,
-#'   fixed.margin = "cols"
-#' )
-#'
-#' # to see results
-#' bf_contingency_tab(
-#'   data = mtcars,
-#'   x = am,
-#'   y = cyl,
-#'   sampling.plan = "jointMulti",
-#'   fixed.margin = "rows",
-#'   prior.concentration = 1
+#'   output = "dataframe"
 #' )
 #'
 #' # ------------------ goodness of fit tests --------------------------------
 #'
+#' # to get expression
 #' bf_contingency_tab(
 #'   data = mtcars,
 #'   x = am,
-#'   prior.concentration = 10
+#'   prior.concentration = 10,
+#'   output = "expression"
 #' )
 #' @export
 
@@ -80,8 +71,8 @@ bf_contingency_tab <- function(data,
                                sampling.plan = "indepMulti",
                                fixed.margin = "rows",
                                prior.concentration = 1,
-                               caption = NULL,
-                               output = "results",
+                               top.text = NULL,
+                               output = "dataframe",
                                k = 2L,
                                ...) {
 
@@ -112,31 +103,26 @@ bf_contingency_tab <- function(data,
   # x
   data %<>% dplyr::mutate(.data = ., {{ x }} := droplevels(as.factor({{ x }})))
 
-  # ========================= contingency tabs =============================
+  # ---------------------------- contingency tabs ----------------------------
 
   if (!rlang::quo_is_null(rlang::enquo(y))) {
     # dropping unused levels
     data %<>% dplyr::mutate(.data = ., {{ y }} := droplevels(as.factor({{ y }})))
 
-    # extracting results from Bayesian test and creating a dataframe
-    bf.df <-
-      bf_extractor(
-        BayesFactor::contingencyTableBF(
-          x = table(data %>% dplyr::pull({{ x }}), data %>% dplyr::pull({{ y }})),
-          sampleType = sampling.plan,
-          fixedMargin = fixed.margin,
-          priorConcentration = prior.concentration
-        )
-      ) %>%
-      dplyr::mutate(
-        .data = .,
-        sampling.plan = sampling.plan,
-        fixed.margin = fixed.margin,
-        prior.concentration = prior.concentration
+    # Bayes Factor object
+    bf_object <-
+      BayesFactor::contingencyTableBF(
+        x = table(data %>% dplyr::pull({{ x }}), data %>% dplyr::pull({{ y }})),
+        sampleType = sampling.plan,
+        fixedMargin = fixed.margin,
+        priorConcentration = prior.concentration
       )
+
+    # Bayes Factor expression
+    return(bf_extractor(bf_object, k = k, top.text = top.text, output = output, ...))
   }
 
-  # ========================= goodness of fit =============================
+  # ---------------------------- goodness of fit ----------------------------
 
   if (rlang::quo_is_null(rlang::enquo(y))) {
     # ratio
@@ -184,58 +170,41 @@ bf_contingency_tab <- function(data,
     pr_y_h1 <- BayesFactor::logMeanExpLogs(tmp_pr_h1)
 
     # computing Bayes Factor and formatting the results
-    bf.df <-
+    df <-
       tibble(bf10 = exp(pr_y_h1 - pr_y_h0)) %>%
-      bf_formatter(.) %>%
-      dplyr::mutate(.data = ., prior.concentration = prior.concentration)
-  }
+      dplyr::mutate(log_e_bf10 = log(bf10), prior.scale = prior.concentration)
 
-  # ========================= caption preparation =============================
-
-  # changing aspects of the caption based on what output is needed
-  if (output %in% c("null", "caption", "H0", "h0")) {
-    bf.value <- bf.df$log_e_bf01[[1]]
-    bf.subscript <- "01"
-  } else {
-    bf.value <- -bf.df$log_e_bf01[[1]]
-    bf.subscript <- "10"
-  }
-
-  # final expression
-  bf_message <-
-    substitute(
-      atop(
-        displaystyle(top.text),
-        expr = paste(
-          "log"["e"],
-          "(BF"[bf.subscript],
-          ") = ",
-          bf,
-          ", ",
-          italic("a"),
-          " = ",
-          a
+    # final expression
+    bf01_expr <-
+      substitute(
+        atop(
+          displaystyle(top.text),
+          expr = paste(
+            "log"["e"],
+            "(BF"["01"],
+            ") = ",
+            bf,
+            ", ",
+            italic("a")["Gunel-Dickey"],
+            " = ",
+            a
+          )
+        ),
+        env = list(
+          top.text = top.text,
+          bf = specify_decimal_p(x = -log(df$bf10[[1]]), k = k),
+          a = specify_decimal_p(x = df$prior.scale[[1]], k = k)
         )
-      ),
-      env = list(
-        top.text = caption,
-        bf.subscript = bf.subscript,
-        bf = specify_decimal_p(x = bf.value, k = k),
-        a = specify_decimal_p(x = bf.df$prior.concentration[[1]], k = k)
       )
-    )
 
-  # return the text results or the dataframe with results
-  return(switch(
-    EXPR = output,
-    "results" = bf.df,
-    bf_message
-  ))
+    # the final expression
+    if (is.null(top.text)) bf01_expr <- bf01_expr$expr
+
+    # return the expression or the dataframe
+    return(switch(
+      EXPR = output,
+      "dataframe" = df,
+      bf01_expr
+    ))
+  }
 }
-
-
-#' @rdname bf_contingency_tab
-#' @aliases bf_contingency_tab
-#' @export
-
-bf_onesample_proptest <- bf_contingency_tab

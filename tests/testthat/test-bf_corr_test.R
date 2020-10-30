@@ -11,16 +11,12 @@ testthat::test_that(
       bf_corr_test(
         data = iris,
         y = Sepal.Length,
-        x = "Sepal.Width",
-        output = "results"
+        x = "Sepal.Width"
       )
 
     # check bayes factor values
     testthat::expect_equal(df$bf10, 0.3445379, tolerance = 0.001)
     testthat::expect_equal(df$log_e_bf10, -1.065551, tolerance = 0.001)
-    testthat::expect_equal(df$log_e_bf10, -df$log_e_bf01, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, -0.462763, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, -df$log_10_bf01, tolerance = 0.001)
 
     set.seed(123)
     subtitle1 <-
@@ -28,36 +24,37 @@ testthat::test_that(
         data = iris,
         y = Sepal.Length,
         x = Sepal.Width,
-        output = "subtitle"
+        output = "expression",
+        top.text = "huh"
       )
 
     testthat::expect_identical(
       subtitle1,
-      ggplot2::expr(atop(
-        displaystyle(NULL),
-        expr = paste(
-          "log"["e"],
-          "(BF"["10"],
-          ") = ",
-          "-1.07",
-          ", ",
-          widehat(italic(rho))["median"]^
-            "posterior",
-          " = ",
-          "-0.12",
-          ", CI"["95%"]^"HDI",
-          " [",
-          "-0.28",
-          ", ",
-          "0.04",
-          "]",
-          ", ",
-          italic("r")["Cauchy"]^
-            "JZS",
-          " = ",
-          "0.71"
+      ggplot2::expr(
+        atop(displaystyle("huh"),
+          expr =
+            paste(
+              "log"["e"],
+              "(BF"["01"],
+              ") = ",
+              "1.07",
+              ", ",
+              widehat(italic(rho))["median"]^"posterior",
+              " = ",
+              "-0.12",
+              ", CI"["95%"]^"HDI",
+              " [",
+              "-0.28",
+              ", ",
+              "0.04",
+              "]",
+              ", ",
+              italic("r")["Cauchy"]^"JZS",
+              " = ",
+              "0.71"
+            )
         )
-      ))
+      )
     )
   }
 )
@@ -73,16 +70,12 @@ testthat::test_that(
       bf_corr_test(
         data = ggplot2::msleep,
         y = names(ggplot2::msleep)[10],
-        x = "sleep_rem",
-        output = "results"
+        x = "sleep_rem"
       )
 
     # check bayes factor values
     testthat::expect_equal(df$bf10, 0.6539296, tolerance = 0.001)
     testthat::expect_equal(df$log_e_bf10, -0.4247555, tolerance = 0.001)
-    testthat::expect_equal(df$log_e_bf10, -df$log_e_bf01, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, -0.184469, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, -df$log_10_bf01, tolerance = 0.001)
 
     set.seed(123)
     subtitle1 <-
@@ -98,13 +91,12 @@ testthat::test_that(
 
     testthat::expect_identical(
       subtitle1,
-      ggplot2::expr(atop(
-        displaystyle(NULL),
-        expr = paste(
+      ggplot2::expr(
+        paste(
           "log"["e"],
-          "(BF"["10"],
+          "(BF"["01"],
           ") = ",
-          "-0.49",
+          "0.49",
           ", ",
           widehat(italic(rho))["mean"]^
             "posterior",
@@ -122,7 +114,7 @@ testthat::test_that(
           " = ",
           "0.80"
         )
-      ))
+      )
     )
   }
 )

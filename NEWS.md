@@ -1,3 +1,41 @@
+# tidyBF 0.4.0
+
+BREAKING CHANGES
+
+  - The biggest breaking change is that now all the functions always return an
+    expression containing log value of Bayes Factor in favor of the null
+    hypothesis ($log(BF_{01})$). This simplifies the code and also reduces
+    confusion. The evidence in favor of alternative is of course just negative
+    of this value.
+
+  - Removes the unnecessary aliases for certain tests: `bf_one_sample_ttest`,
+    `bf_two_sample_ttest`, and `bf_onesample_proptest`.
+    
+  - The output dataframe now only contains results for the alternative
+    hypothesis (`BF10`) and its `log` value to avoid cluttered dataframe since
+    all the other columns were essentially mathematical transformations of it
+    and not really relevant.
+    
+  - The `output` argument's default value has been changed from too generic
+    `"results"` to more specific and informative `"dataframe"`.
+    
+  - The argument `caption` has been renamed to `top.text` since caption doesn't
+    really have much sense outside of the plotting-context of `ggstatsplot` in
+    which it was originally conceived.
+    
+  - The *t*-test and ANOVA tests get `subject.id` argument relevant for repeated
+    measures design.
+    
+  - Renames `bf_meta` to `bf_meta_random`. The previous alias is retained for
+    now but will be retired in future releases. 
+
+MAJOR CHANGES
+
+  - Replaces the heavier `broomExtra` dependency with `parameters`.
+  
+  - `bf_oneway_anova` now returns model-averaged R-squared posterior as a
+    measure of effect size.
+
 # tidyBF 0.3.0
 
 BREAKING CHANGES

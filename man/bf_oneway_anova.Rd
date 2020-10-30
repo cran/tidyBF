@@ -2,17 +2,15 @@
 % Please edit documentation in R/bf_oneway_anova.R
 \name{bf_oneway_anova}
 \alias{bf_oneway_anova}
-\title{Bayesian one-way analysis of variance}
+\title{Bayes Factor for one-way analysis of variance (ANOVA)}
 \usage{
 bf_oneway_anova(
   data,
   x,
   y,
-  bf.prior = 0.707,
-  caption = NULL,
-  output = "results",
+  subject.id = NULL,
   paired = FALSE,
-  k = 2L,
+  bf.prior = 0.707,
   ...
 )
 }
@@ -25,58 +23,76 @@ be taken. A matrix or tables will \strong{not} be accepted.}
 \item{y}{The response (a.k.a. outcome or dependent) variable from the
 dataframe \code{data}.}
 
-\item{bf.prior}{A number between \code{0.5} and \code{2} (default \code{0.707}), the prior
-width to use in calculating Bayes factors.}
-
-\item{caption}{Text to display as caption (will be displayed on top of the
-Bayes Factor caption/message).}
-
-\item{output}{Can either be \code{"null"} (or \code{"caption"} or \code{"H0"} or \code{"h0"}),
-which will return expression with evidence in favor of the null hypothesis,
-or \code{"alternative"} (or \code{"title"} or \code{"H1"} or \code{"h1"}), which will return
-expression with evidence in favor of the alternative hypothesis, or
-\code{"results"}, which will return a dataframe with results all the details).}
+\item{subject.id}{In case of repeated measures design (\code{paired = TRUE},
+i.e.), this argument specifies the subject or repeated measures id. Note
+that if this argument is \code{NULL} (which is the default), the function
+assumes that the data has already been sorted by such an id by the user and
+creates an internal identifier. So if your data is \strong{not} sorted and you
+leave this argument unspecified, the results can be inaccurate.}
 
 \item{paired}{Decides whether the design is repeated measures or not
 (Default: \code{FALSE}).}
 
-\item{k}{Number of digits after decimal point (should be an integer)
-(Default: \code{k = 2L}).}
+\item{bf.prior}{A number between \code{0.5} and \code{2} (default \code{0.707}), the prior
+width to use in calculating Bayes factors.}
 
-\item{...}{Additional arguments passed to
-\code{\link[parameters:model_parameters.BFBayesFactor]{parameters::model_parameters.BFBayesFactor()}}.}
+\item{...}{
+  Arguments passed on to \code{\link[=bf_extractor]{bf_extractor}}
+  \describe{
+    \item{\code{conf.level}}{Confidence/Credible Interval (CI) level. Default to \code{0.95}
+(\verb{95\%}).}
+    \item{\code{centrality}}{The point-estimates (centrality indices) to compute.
+Character (vector) or list with one or more of these options: \code{"median"},
+\code{"mean"}, \code{"MAP"} or \code{"all"}.}
+    \item{\code{conf.method}}{The type of index used for Credible Interval. Can be
+\code{"hdi"} (default, see \code{\link[bayestestR:hdi]{bayestestR::hdi()}}), \code{"eti"} (see
+\code{\link[bayestestR:eti]{bayestestR::eti()}}) or \code{"si"} (see \code{\link[bayestestR:si]{bayestestR::si()}}).}
+    \item{\code{k}}{Number of digits after decimal point (should be an integer)
+(Default: \code{k = 2L}).}
+    \item{\code{top.text}}{Text to display as top.text (will be displayed on top of the
+Bayes Factor top.text/message).}
+    \item{\code{output}}{If \code{"expression"}, will return expression with statistical
+details, while \code{"dataframe"} will return a dataframe containing the
+results.}
+  }}
 }
 \description{
-Bayesian one-way analysis of variance
+Bayes Factor for one-way analysis of variance (ANOVA)
+}
+\note{
+If you want to set \code{paired = TRUE}, you are going to need to install
+the development version of \code{BayesFactor} (\verb{0.9.12-4.3}).
+You can download it by running:
+\code{remotes::install_github("richarddmorey/BayesFactor/pkg/BayesFactor")}.
 }
 \examples{
 # setup
 set.seed(123)
 
 # between-subjects -------------------------------------------------------
+
+# to get dataframe
 bf_oneway_anova(
   data = iris,
   x = Species,
   y = Sepal.Length,
-  bf.prior = 0.8
+  bf.prior = 0.8,
+  output = "dataframe"
 )
 
 # within-subjects -------------------------------------------------------
-bf_oneway_anova(
-  data = bugs_long,
-  x = condition,
-  y = desire,
-  paired = TRUE
-)
 
-# expression -------------------------------------------------------
-bf_oneway_anova(
-  data = bugs_long,
-  x = condition,
-  y = desire,
-  paired = TRUE,
-  output = "null"
-)
+# to get expression (needs `BayesFactor 0.9.12-4.3`)
+if (utils::packageVersion("BayesFactor") >= package_version("0.9.12-4.3")) {
+  bf_oneway_anova(
+    data = bugs_long,
+    x = condition,
+    y = desire,
+    subject.id = subject,
+    paired = TRUE,
+    output = "expression"
+  )
+}
 }
 \seealso{
 \code{\link{bf_contingency_tab}}, \code{\link{bf_corr_test}},

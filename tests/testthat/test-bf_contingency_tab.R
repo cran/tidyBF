@@ -11,41 +11,41 @@ testthat::test_that(
       bf_contingency_tab(
         data = mtcars,
         x = am,
-        output = "results"
+        output = "dataframe"
       )
 
     # check bayes factor values
     testthat::expect_equal(df$bf10, 0.2465787, tolerance = 0.001)
     testthat::expect_equal(df$log_e_bf10, -1.400074, tolerance = 0.001)
-    testthat::expect_equal(df$log_e_bf10, -df$log_e_bf01, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, -0.6080444, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, -df$log_10_bf01, tolerance = 0.001)
 
-    # caption
+    # expr
     set.seed(123)
-    caption_text <-
+    expr_text <-
       bf_contingency_tab(
         data = mtcars,
         x = "cyl",
-        output = "alternative",
-        prior.concentration = 10
+        output = "expression",
+        prior.concentration = 10,
+        top.text = "duh"
       )
 
     testthat::expect_identical(
-      caption_text,
-      ggplot2::expr(atop(
-        displaystyle(NULL),
-        expr = paste(
-          "log"["e"],
-          "(BF"["10"],
-          ") = ",
-          "-0.55",
-          ", ",
-          italic("a"),
-          " = ",
-          "10.00"
+      expr_text,
+      ggplot2::expr(
+        atop(displaystyle("duh"),
+          expr =
+            paste(
+              "log"["e"],
+              "(BF"["01"],
+              ") = ",
+              "0.55",
+              ", ",
+              italic("a")["Gunel-Dickey"],
+              " = ",
+              "10.00"
+            )
         )
-      ))
+      )
     )
   }
 )
@@ -77,22 +77,26 @@ testthat::test_that(
         y = cyl,
         sampling.plan = "jointMulti",
         fixed.margin = "rows",
-        output = "results"
+        output = "dataframe"
       )
 
-    # caption
-    caption_text <-
+    # expr
+    set.seed(123)
+    expr_text <-
       bf_contingency_tab(
         data = mtcars,
         x = am,
         y = "cyl",
         sampling.plan = "jointMulti",
         fixed.margin = "rows",
-        output = "alternative"
+        conf.level = 0.89,
+        k = 3L,
+        output = "expression"
       )
 
     # with counts
-    caption_text2 <-
+    set.seed(123)
+    expr_text2 <-
       bf_contingency_tab(
         data = as.data.frame(Titanic),
         x = "Survived",
@@ -100,79 +104,111 @@ testthat::test_that(
         counts = "Freq",
         sampling.plan = "jointMulti",
         fixed.margin = "rows",
-        output = "alternative"
+        k = 3L,
+        output = "expression",
+        conf.level = 0.99,
+        centrality = "mean"
       )
 
     # with counts
-    caption_text3 <-
+    set.seed(123)
+    expr_text3 <-
       bf_contingency_tab(
         data = as.data.frame(Titanic),
         x = Survived,
         y = Sex,
         counts = "Freq",
-        output = "H0"
+        k = 3L,
+        output = "expression",
+        prior.concentration = 1.5
       )
 
     # check bayes factor values
+    testthat::expect_is(df, "tbl_df")
     testthat::expect_equal(df$bf10, 28.07349, tolerance = 0.001)
     testthat::expect_equal(df$log_e_bf10, 3.334826, tolerance = 0.001)
-    testthat::expect_equal(df$log_e_bf10, -df$log_e_bf01, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, 1.448296, tolerance = 0.001)
-    testthat::expect_equal(df$log_10_bf10, -df$log_10_bf01, tolerance = 0.001)
 
     # checking if two usages of the function are producing the same results
     testthat::expect_equal(df$bf10, df_results$bf10, tolerance = 0.001)
-    testthat::expect_equal(df$log_e_bf01, df_results$log_e_bf01, tolerance = 0.001)
 
-    # caption text
-    testthat::expect_identical(
-      caption_text,
-      ggplot2::expr(atop(
-        displaystyle(NULL),
-        expr = paste(
-          "log"["e"],
-          "(BF"["10"],
-          ") = ",
-          "3.33",
-          ", ",
-          italic("a"),
-          " = ",
-          "1.00"
-        )
-      ))
-    )
 
+    # expr text
     testthat::expect_identical(
-      caption_text2,
-      ggplot2::expr(atop(
-        displaystyle(NULL),
-        expr = paste(
-          "log"["e"],
-          "(BF"["10"],
-          ") = ",
-          "214.25",
-          ", ",
-          italic("a"),
-          " = ",
-          "1.00"
-        )
-      ))
-    )
-    testthat::expect_identical(
-      caption_text3,
-      ggplot2::expr(atop(
-        displaystyle(NULL),
-        expr = paste(
+      expr_text,
+      ggplot2::expr(
+        paste(
           "log"["e"],
           "(BF"["01"],
           ") = ",
-          "-213.98",
+          "-3.335",
           ", ",
-          italic("a"),
+          widehat(italic("V"))["median"]^"posterior",
           " = ",
-          "1.00"
+          "0.480",
+          ", CI"["89%"]^"HDI",
+          " [",
+          "0.277",
+          ", ",
+          "0.696",
+          "]",
+          ", ",
+          italic("a")["Gunel-Dickey"],
+          " = ",
+          "1.000"
         )
-      ))
+      )
+    )
+
+    testthat::expect_identical(
+      expr_text2,
+      ggplot2::expr(
+        paste(
+          "log"["e"],
+          "(BF"["01"],
+          ") = ",
+          "-214.255",
+          ", ",
+          widehat(italic("V"))["mean"]^"posterior",
+          " = ",
+          "0.455",
+          ", CI"["99%"]^"HDI",
+          " [",
+          "0.402",
+          ", ",
+          "0.505",
+          "]",
+          ", ",
+          italic("a")["Gunel-Dickey"],
+          " = ",
+          "1.000"
+        )
+      )
+    )
+
+    testthat::expect_identical(
+      expr_text3,
+      ggplot2::expr(
+        paste(
+          "log"["e"],
+          "(BF"["01"],
+          ") = ",
+          "-213.873",
+          ", ",
+          widehat(italic("V"))["median"]^"posterior",
+          " = ",
+          "0.454",
+          ", CI"["95%"]^"HDI",
+          " [",
+          "0.415",
+          ", ",
+          "0.494",
+          "]",
+          ", ",
+          italic("a")["Gunel-Dickey"],
+          " = ",
+          "1.500"
+        )
+      )
     )
   }
 )
@@ -180,10 +216,10 @@ testthat::test_that(
 # check edge cases --------------------------------------------
 
 testthat::test_that(
-  desc = "bayes factor caption maker check",
+  desc = "check edge cases",
   code = {
     df <- data.frame(x = c("a"))
 
-    testthat::expect_null(bf_onesample_proptest(df, x))
+    testthat::expect_null(bf_contingency_tab(df, x))
   }
 )
