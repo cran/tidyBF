@@ -4,6 +4,7 @@ testthat::test_that(
   desc = "bayes factor (proportion test)",
   code = {
     testthat::skip_if(getRversion() < "3.6")
+    testthat::skip_on_cran()
 
     # extracting results from where this function is implemented
     set.seed(123)
@@ -56,6 +57,7 @@ testthat::test_that(
   desc = "bayes factor (contingency tab)",
   code = {
     testthat::skip_if(getRversion() < "3.6")
+    testthat::skip_on_cran()
 
     # extracting results from where this function is implemented
     set.seed(123)
@@ -73,7 +75,7 @@ testthat::test_that(
     df_results <-
       bf_contingency_tab(
         data = mtcars,
-        x = am,
+        x = "am",
         y = cyl,
         sampling.plan = "jointMulti",
         fixed.margin = "rows",
@@ -85,7 +87,7 @@ testthat::test_that(
     expr_text <-
       bf_contingency_tab(
         data = mtcars,
-        x = am,
+        x = colnames(mtcars)[9],
         y = "cyl",
         sampling.plan = "jointMulti",
         fixed.margin = "rows",
@@ -100,7 +102,7 @@ testthat::test_that(
       bf_contingency_tab(
         data = as.data.frame(Titanic),
         x = "Survived",
-        y = Sex,
+        y = colnames(as.data.frame(Titanic))[2],
         counts = "Freq",
         sampling.plan = "jointMulti",
         fixed.margin = "rows",
@@ -123,8 +125,12 @@ testthat::test_that(
         prior.concentration = 1.5
       )
 
+    # objects
+    testthat::expect_type(df, "list")
+    testthat::expect_type(df_results, "list")
+    testthat::expect_identical(class(df_results), c("tbl_df", "tbl", "data.frame"))
+
     # check bayes factor values
-    testthat::expect_is(df, "tbl_df")
     testthat::expect_equal(df$bf10, 28.07349, tolerance = 0.001)
     testthat::expect_equal(df$log_e_bf10, 3.334826, tolerance = 0.001)
 
@@ -221,5 +227,29 @@ testthat::test_that(
     df <- data.frame(x = c("a"))
 
     testthat::expect_null(bf_contingency_tab(df, x))
+  }
+)
+
+# check edge cases --------------------------------------------
+
+testthat::test_that(
+  desc = "check edge cases",
+  code = {
+    testthat::skip_on_cran()
+
+    # add an empty level
+    df <- mtcars
+    df$am <- as.factor(df$am)
+    levels(df$am) <- c(levels(df$am), 2)
+
+    set.seed(123)
+    res_df <- bf_contingency_tab(df, am, cyl, sampling.plan = "poisson")
+
+    # shouldn't change the result
+    testthat::expect_equal(
+      res_df$bf10[[1]],
+      8.199958,
+      tolerance = 0.001
+    )
   }
 )

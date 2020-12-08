@@ -4,6 +4,7 @@ testthat::test_that(
   desc = "bayes factor (independent samples t-test)",
   code = {
     testthat::skip_if(getRversion() < "3.6")
+    testthat::skip_on_cran()
 
     # from Bayes Factor
     df <- suppressMessages(bf_extractor(
@@ -27,7 +28,8 @@ testthat::test_that(
       )
 
     # check bayes factor values
-    testthat::expect_is(df, "tbl_df")
+    testthat::expect_type(df, "list")
+    testthat::expect_identical(class(df), c("tbl_df", "tbl", "data.frame"))
     testthat::expect_equal(df$log_e_bf10, -0.001119132, tolerance = 0.001)
 
     # checking if two usages of the function are producing the same results
@@ -41,6 +43,7 @@ testthat::test_that(
   desc = "bayes factor (paired t-test)",
   code = {
     testthat::skip_if(getRversion() < "3.6")
+    testthat::skip_on_cran()
 
     # data
     dat <- tidyr::spread(bugs_long, condition, desire) %>%
@@ -86,6 +89,7 @@ testthat::test_that(
   desc = "bayes factor (one sample t-test)",
   code = {
     testthat::skip_if(getRversion() < "3.6")
+    testthat::skip_on_cran()
 
     # creating a dataframe
     set.seed(123)
@@ -131,7 +135,7 @@ testthat::test_that(
         conf.level = 0.90
       )
 
-    testthat::expect_is(subtitle, "call")
+    testthat::expect_type(subtitle, "language")
 
     testthat::expect_identical(
       subtitle,

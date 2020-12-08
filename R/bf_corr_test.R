@@ -19,6 +19,7 @@
 #' \code{\link{bf_ttest}}
 #'
 #' @examples
+#' \donttest{
 #' # for reproducibility
 #' set.seed(123)
 #' library(tidyBF)
@@ -40,14 +41,11 @@
 #'   bf.prior = 0.8,
 #'   output = "expression"
 #' )
+#' }
 #' @export
 
 # function body
-bf_corr_test <- function(data,
-                         x,
-                         y,
-                         bf.prior = 0.707,
-                         ...) {
+bf_corr_test <- function(data, x, y, bf.prior = 0.707, ...) {
 
   # extracting results from Bayesian test and creating a dataframe
   bf_object <-

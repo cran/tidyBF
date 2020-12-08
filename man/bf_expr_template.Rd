@@ -17,8 +17,8 @@ bf_expr_template(
 )
 }
 \arguments{
-\item{top.text}{Text to display as top.text (will be displayed on top of the
-Bayes Factor top.text/message).}
+\item{top.text}{Text to display on top of the Bayes Factor message. This is
+mostly relevant in the context of \code{ggstatsplot} functions.}
 
 \item{prior.type}{A character that specifies the prior type.}
 
@@ -36,8 +36,8 @@ Character (vector) or list with one or more of these options: \code{"median"},
 (\verb{95\%}).}
 
 \item{conf.method}{The type of index used for Credible Interval. Can be
-\code{"hdi"} (default, see \code{\link[bayestestR:hdi]{bayestestR::hdi()}}), \code{"eti"} (see
-\code{\link[bayestestR:eti]{bayestestR::eti()}}) or \code{"si"} (see \code{\link[bayestestR:si]{bayestestR::si()}}).}
+\code{"hdi"} (default), \code{"eti"}, or \code{"si"} (see \code{si()}, \code{hdi()}, \code{eti()}
+functions from \code{bayestestR} package).}
 
 \item{k}{Number of digits after decimal point (should be an integer)
 (Default: \code{k = 2L}).}

@@ -4,6 +4,7 @@ testthat::test_that(
   desc = "bayes factor (correlation)",
   code = {
     testthat::skip_if(getRversion() < "3.6")
+    testthat::skip_on_cran()
 
     # creating a dataframe
     set.seed(123)
@@ -37,7 +38,8 @@ testthat::test_that(
       # extract details
       df2 <- bf_extractor(result)
 
-      testthat::expect_is(df2, "tbl_df")
+      testthat::expect_type(df2, "list")
+      testthat::expect_identical(class(df2), c("tbl_df", "tbl", "data.frame"))
       testthat::expect_equal(df2$bf10[[1]], 2.647962, tolerance = 0.001)
     }
   }

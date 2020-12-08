@@ -4,6 +4,7 @@ testthat::test_that(
   desc = "bf_meta_random works",
   code = {
     testthat::skip_if(getRversion() < "3.6")
+    testthat::skip_on_cran()
 
     # setup
     set.seed(123)
@@ -53,7 +54,8 @@ testthat::test_that(
         top.text = "ayyo"
       ))
 
-    testthat::expect_is(df, "tbl_df")
+    testthat::expect_type(df, "list")
+    testthat::expect_identical(class(df), c("tbl_df", "tbl", "data.frame"))
 
     testthat::expect_identical(
       subtitle1,
@@ -76,18 +78,8 @@ testthat::test_that(
           ", ",
           italic("r")["Cauchy"]^"JZS",
           " = ",
-          "0.707"
+          "0.300"
         )
-      )
-    )
-
-    # checking message
-    testthat::expect_error(
-      bf_meta_random(
-        data = dplyr::select(df1, -estimate),
-        k = 3,
-        iter = 1000,
-        summarize = "integrate"
       )
     )
   }

@@ -19,8 +19,8 @@ bf_extractor(
 \item{bf.object}{An object from \code{BayesFactor} package.}
 
 \item{conf.method}{The type of index used for Credible Interval. Can be
-\code{"hdi"} (default, see \code{\link[bayestestR:hdi]{bayestestR::hdi()}}), \code{"eti"} (see
-\code{\link[bayestestR:eti]{bayestestR::eti()}}) or \code{"si"} (see \code{\link[bayestestR:si]{bayestestR::si()}}).}
+\code{"hdi"} (default), \code{"eti"}, or \code{"si"} (see \code{si()}, \code{hdi()}, \code{eti()}
+functions from \code{bayestestR} package).}
 
 \item{centrality}{The point-estimates (centrality indices) to compute.
 Character (vector) or list with one or more of these options: \code{"median"},
@@ -32,8 +32,8 @@ Character (vector) or list with one or more of these options: \code{"median"},
 \item{k}{Number of digits after decimal point (should be an integer)
 (Default: \code{k = 2L}).}
 
-\item{top.text}{Text to display as top.text (will be displayed on top of the
-Bayes Factor top.text/message).}
+\item{top.text}{Text to display on top of the Bayes Factor message. This is
+mostly relevant in the context of \code{ggstatsplot} functions.}
 
 \item{output}{If \code{"expression"}, will return expression with statistical
 details, while \code{"dataframe"} will return a dataframe containing the
@@ -50,6 +50,7 @@ Extract Bayes Factors from \code{BayesFactor} model object.
 hypothesis; doing so will return wrong results.
 }
 \examples{
+\donttest{
 # setup
 library(tidyBF)
 set.seed(123)
@@ -64,4 +65,5 @@ bf_obj <-
 
 # extracting Bayes Factors in a dataframe
 bf_extractor(bf_obj)
+}
 }

@@ -8,12 +8,12 @@
 #'   Character (vector) or list with one or more of these options: `"median"`,
 #'   `"mean"`, `"MAP"` or `"all"`.
 #' @param conf.method The type of index used for Credible Interval. Can be
-#'   \code{"hdi"} (default, see [bayestestR::hdi()]), \code{"eti"} (see
-#'   [bayestestR::eti()]) or \code{"si"} (see [bayestestR::si()]).
+#'   `"hdi"` (default), `"eti"`, or `"si"` (see `si()`, `hdi()`, `eti()`
+#'   functions from `bayestestR` package).
 #' @param k Number of digits after decimal point (should be an integer)
 #'   (Default: `k = 2L`).
-#' @param top.text Text to display as top.text (will be displayed on top of the
-#'   Bayes Factor top.text/message).
+#' @param top.text Text to display on top of the Bayes Factor message. This is
+#'   mostly relevant in the context of `ggstatsplot` functions.
 #' @param output If `"expression"`, will return expression with statistical
 #'   details, while `"dataframe"` will return a dataframe containing the
 #'   results.
@@ -30,6 +30,7 @@
 #'   hypothesis; doing so will return wrong results.
 #'
 #' @examples
+#' \donttest{
 #' # setup
 #' library(tidyBF)
 #' set.seed(123)
@@ -44,6 +45,7 @@
 #'
 #' # extracting Bayes Factors in a dataframe
 #' bf_extractor(bf_obj)
+#' }
 #' @export
 
 # function body
@@ -66,6 +68,7 @@ bf_extractor <- function(bf.object,
       ci_method = conf.method,
       centrality = centrality,
       verbose = FALSE,
+      include_studies = FALSE,
       ...
     )) %>%
     insight::standardize_names(data = ., style = "broom") %>%
@@ -113,8 +116,7 @@ bf_extractor <- function(bf.object,
         dplyr::filter(.data = ., prior.parameter == "fixed")
 
       # merge the parameters dataframe with prior dataframe
-      df <-
-        dplyr::bind_cols(dplyr::select(.data = df, -dplyr::contains("prior.")), df_prior)
+      df <- dplyr::bind_cols(dplyr::select(df, -dplyr::contains("prior.")), df_prior)
     }
 
     # ------------------------ correlation ------------------------------
@@ -127,9 +129,9 @@ bf_extractor <- function(bf.object,
 
     if (class(bf.object@denominator)[[1]] == "BFcontingencyTable") {
       # dataframe cleanup
-      df %<>%
+      df <-
         dplyr::bind_cols(
-          .,
+          dplyr::select(.data = df, -term),
           effectsize::effectsize(
             model = bf.object,
             ci = conf.level,
@@ -139,24 +141,11 @@ bf_extractor <- function(bf.object,
           ) %>%
             as_tibble(.) %>%
             insight::standardize_names(data = ., style = "broom")
-        ) %>%
-        dplyr::mutate(prior.scale = bf.object@denominator@prior$a[[1]])
+        )
 
       # for expression
       c(estimate.type, prior.type) %<-% c(quote(italic("V")), quote(italic("a")["Gunel-Dickey"]))
     }
-  }
-
-  # ------------------------ metaBMA -------------------------------------
-
-  if (!grepl("BFBayesFactor", class(bf.object)[[1]], fixed = TRUE)) {
-    # dataframe cleanup
-    df %<>%
-      dplyr::filter(.data = ., term %in% c("Overall", "tau")) %>%
-      dplyr::mutate(.data = ., prior.scale = bf.object$jzs$rscale_discrete[[1]])
-
-    # for expression
-    c(centrality, conf.method) %<-% c("mean", "hdi")
   }
 
   # Bayes Factor expression
@@ -173,33 +162,5 @@ bf_extractor <- function(bf.object,
     )
 
   # return the text results or the dataframe with results
-  switch(
-    EXPR = output,
-    "dataframe" = df,
-    bf_expr_01
-  )
-}
-
-#' @name meta_data_check
-#' @title Helper function to check column names for meta-analysis.
-#'
-#' @inheritParams bf_meta_random
-#'
-#' @importFrom ipmisc red blue
-#'
-#' @export
-
-meta_data_check <- function(data) {
-  # check if the two columns needed are present
-  if (sum(c("estimate", "std.error") %in% names(data)) != 2) {
-    # inform the user that skipping labels for the same reason
-    stop(message(cat(
-      ipmisc::red("Error"),
-      ipmisc::blue(": The dataframe must contain the following two columns:\n"),
-      ipmisc::blue("`estimate` and `std.error`."),
-      sep = ""
-    )),
-    call. = FALSE
-    )
-  }
+  switch(EXPR = output, "dataframe" = df, bf_expr_01)
 }

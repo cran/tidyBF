@@ -52,8 +52,8 @@ to \code{1} by default. It indexes the expected deviation from the null
 hypothesis under the alternative, and corresponds to Gunel and Dickey's
 (1974) \code{"a"} parameter.}
 
-\item{top.text}{Text to display as top.text (will be displayed on top of the
-Bayes Factor top.text/message).}
+\item{top.text}{Text to display on top of the Bayes Factor message. This is
+mostly relevant in the context of \code{ggstatsplot} functions.}
 
 \item{output}{If \code{"expression"}, will return expression with statistical
 details, while \code{"dataframe"} will return a dataframe containing the
@@ -71,14 +71,15 @@ results.}
 Character (vector) or list with one or more of these options: \code{"median"},
 \code{"mean"}, \code{"MAP"} or \code{"all"}.}
     \item{\code{conf.method}}{The type of index used for Credible Interval. Can be
-\code{"hdi"} (default, see \code{\link[bayestestR:hdi]{bayestestR::hdi()}}), \code{"eti"} (see
-\code{\link[bayestestR:eti]{bayestestR::eti()}}) or \code{"si"} (see \code{\link[bayestestR:si]{bayestestR::si()}}).}
+\code{"hdi"} (default), \code{"eti"}, or \code{"si"} (see \code{si()}, \code{hdi()}, \code{eti()}
+functions from \code{bayestestR} package).}
   }}
 }
 \description{
 Bayes Factor for contingency table analysis
 }
 \examples{
+\donttest{
 # for reproducibility
 set.seed(123)
 library(tidyBF)
@@ -102,6 +103,7 @@ bf_contingency_tab(
   prior.concentration = 10,
   output = "expression"
 )
+}
 }
 \seealso{
 \code{\link{bf_corr_test}}, \code{\link{bf_oneway_anova}},
