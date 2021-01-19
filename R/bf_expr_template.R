@@ -10,14 +10,14 @@
 #' @inheritParams bf_extractor
 #' @inheritParams bf_ttest
 #'
-#' @importFrom ipmisc specify_decimal_p
+#' @importFrom ipmisc format_num
 #'
 #' @export
 
 bf_expr_template <- function(top.text,
-                             prior.type = quote(italic("r")["Cauchy"]^"JZS"),
-                             estimate.type = quote(delta),
                              estimate.df,
+                             prior.type = NULL,
+                             estimate.type = NULL,
                              centrality = "median",
                              conf.level = 0.95,
                              conf.method = "HDI",
@@ -34,30 +34,20 @@ bf_expr_template <- function(top.text,
       c(estimate.df$estimate[[1]], estimate.df$conf.low[[1]], estimate.df$conf.high[[1]])
   }
 
+  # if expression elements are `NULL`
+  if (is.null(prior.type)) prior.type <- prior_type_switch(estimate.df$method[[1]])
+  if (is.null(estimate.type)) estimate.type <- estimate_type_switch(estimate.df$method[[1]])
+
   # prepare the Bayes Factor message
   bf01_expr <-
     substitute(
       atop(
         displaystyle(top.text),
         expr = paste(
-          "log"["e"],
-          "(BF"["01"],
-          ") = ",
-          bf,
-          ", ",
-          widehat(estimate.type)[centrality]^"posterior",
-          " = ",
-          estimate,
-          ", CI"[conf.level]^conf.method,
-          " [",
-          estimate.LB,
-          ", ",
-          estimate.UB,
-          "]",
-          ", ",
-          prior.type,
-          " = ",
-          bf.prior
+          "log"["e"] * "(BF"["01"] * ") = " * bf * ", ",
+          widehat(estimate.type)[centrality]^"posterior" * " = " * estimate * ", ",
+          "CI"[conf.level]^conf.method * " [" * estimate.LB * ", " * estimate.UB * "], ",
+          prior.type * " = " * bf.prior
         )
       ),
       env = list(
@@ -66,15 +56,40 @@ bf_expr_template <- function(top.text,
         centrality = centrality,
         conf.level = paste0(conf.level * 100, "%"),
         conf.method = toupper(conf.method),
-        bf = specify_decimal_p(x = -log(estimate.df$bf10[[1]]), k = k),
-        estimate = specify_decimal_p(x = estimate, k = k),
-        estimate.LB = specify_decimal_p(x = estimate.LB, k = k),
-        estimate.UB = specify_decimal_p(x = estimate.UB, k = k),
+        bf = format_num(-log(estimate.df$bf10[[1]]), k = k),
+        estimate = format_num(estimate, k = k),
+        estimate.LB = format_num(estimate.LB, k = k),
+        estimate.UB = format_num(estimate.UB, k = k),
         prior.type = prior.type,
-        bf.prior = specify_decimal_p(x = estimate.df$prior.scale[[1]], k = k)
+        bf.prior = format_num(estimate.df$prior.scale[[1]], k = k)
       )
     )
 
   # return the final expression
   if (is.null(top.text)) bf01_expr$expr else bf01_expr
+}
+
+
+#' @noRd
+
+prior_type_switch <- function(method) {
+  switch(
+    method,
+    "Bayesian contingency tabs analysis" = quote(italic("a")["Gunel-Dickey"]),
+    quote(italic("r")["Cauchy"]^"JZS")
+  )
+}
+
+
+#' @noRd
+
+estimate_type_switch <- function(method) {
+  switch(
+    method,
+    "Bayesian contingency tabs analysis" = quote(italic("V")),
+    "Bayesian correlation analysis" = quote(italic(rho)),
+    "Bayesian meta-analysis using 'metaBMA'" = ,
+    "Bayesian t-test" = quote(italic(delta)),
+    "Bayes factors for linear models" = quote(italic(R^"2"))
+  )
 }

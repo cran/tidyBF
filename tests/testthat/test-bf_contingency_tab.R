@@ -1,10 +1,10 @@
 # bayes factor (proportion test) --------------------------------------
 
-testthat::test_that(
+test_that(
   desc = "bayes factor (proportion test)",
   code = {
-    testthat::skip_if(getRversion() < "3.6")
-    testthat::skip_on_cran()
+    skip_if(getRversion() < "3.6")
+    skip_on_cran()
 
     # extracting results from where this function is implemented
     set.seed(123)
@@ -16,8 +16,8 @@ testthat::test_that(
       )
 
     # check bayes factor values
-    testthat::expect_equal(df$bf10, 0.2465787, tolerance = 0.001)
-    testthat::expect_equal(df$log_e_bf10, -1.400074, tolerance = 0.001)
+    expect_equal(df$bf10, 0.2465787, tolerance = 0.001)
+    expect_equal(df$log_e_bf10, -1.400074, tolerance = 0.001)
 
     # expr
     set.seed(123)
@@ -30,20 +30,14 @@ testthat::test_that(
         top.text = "duh"
       )
 
-    testthat::expect_identical(
+    expect_identical(
       expr_text,
       ggplot2::expr(
         atop(displaystyle("duh"),
           expr =
             paste(
-              "log"["e"],
-              "(BF"["01"],
-              ") = ",
-              "0.55",
-              ", ",
-              italic("a")["Gunel-Dickey"],
-              " = ",
-              "10.00"
+              "log"["e"] * "(BF"["01"] * ") = " * "0.55" * ", ",
+              italic("a")["Gunel-Dickey"] * " = " * "10.00"
             )
         )
       )
@@ -53,22 +47,11 @@ testthat::test_that(
 
 # bayes factor (contingency tab) --------------------------------------
 
-testthat::test_that(
+test_that(
   desc = "bayes factor (contingency tab)",
   code = {
-    testthat::skip_if(getRversion() < "3.6")
-    testthat::skip_on_cran()
-
-    # extracting results from where this function is implemented
-    set.seed(123)
-    df <-
-      suppressMessages(bf_extractor(
-        BayesFactor::contingencyTableBF(
-          x = table(mtcars$am, mtcars$cyl),
-          sampleType = "jointMulti",
-          fixedMargin = "rows"
-        )
-      ))
+    skip_if(getRversion() < "3.6")
+    skip_on_cran()
 
     # extracting results from where this function is implemented
     set.seed(123)
@@ -82,9 +65,16 @@ testthat::test_that(
         output = "dataframe"
       )
 
+    # objects
+    expect_identical(class(df_results), c("tbl_df", "tbl", "data.frame"))
+
+    # check bayes factor values
+    expect_equal(df_results$bf10[[1]], 28.07349, tolerance = 0.001)
+    expect_equal(df_results$log_e_bf10[[1]], 3.334826, tolerance = 0.001)
+
     # expr
     set.seed(123)
-    expr_text <-
+    expr_text1 <-
       bf_contingency_tab(
         data = mtcars,
         x = colnames(mtcars)[9],
@@ -125,94 +115,42 @@ testthat::test_that(
         prior.concentration = 1.5
       )
 
-    # objects
-    testthat::expect_type(df, "list")
-    testthat::expect_type(df_results, "list")
-    testthat::expect_identical(class(df_results), c("tbl_df", "tbl", "data.frame"))
-
-    # check bayes factor values
-    testthat::expect_equal(df$bf10, 28.07349, tolerance = 0.001)
-    testthat::expect_equal(df$log_e_bf10, 3.334826, tolerance = 0.001)
-
-    # checking if two usages of the function are producing the same results
-    testthat::expect_equal(df$bf10, df_results$bf10, tolerance = 0.001)
-
-
     # expr text
-    testthat::expect_identical(
-      expr_text,
+    expect_identical(
+      expr_text1,
       ggplot2::expr(
         paste(
-          "log"["e"],
-          "(BF"["01"],
-          ") = ",
-          "-3.335",
-          ", ",
-          widehat(italic("V"))["median"]^"posterior",
-          " = ",
-          "0.480",
-          ", CI"["89%"]^"HDI",
-          " [",
-          "0.277",
-          ", ",
-          "0.696",
-          "]",
-          ", ",
-          italic("a")["Gunel-Dickey"],
-          " = ",
-          "1.000"
+          "log"["e"] * "(BF"["01"] * ") = " * "-3.335" * ", ",
+          widehat(italic("V"))["median"]^"posterior" * " = " * "0.479" * ", ",
+          "CI"["89%"]^"HDI" * " [" * "0.285" * ", " * "0.692" * "], ",
+          italic("a")["Gunel-Dickey"] * " = " * "1.000"
         )
       )
     )
 
-    testthat::expect_identical(
+    expect_type(expr_text2, "language")
+    expect_type(expr_text3, "language")
+
+    expect_identical(
       expr_text2,
       ggplot2::expr(
         paste(
-          "log"["e"],
-          "(BF"["01"],
-          ") = ",
-          "-214.255",
-          ", ",
-          widehat(italic("V"))["mean"]^"posterior",
-          " = ",
-          "0.455",
-          ", CI"["99%"]^"HDI",
-          " [",
-          "0.402",
-          ", ",
-          "0.505",
-          "]",
-          ", ",
-          italic("a")["Gunel-Dickey"],
-          " = ",
-          "1.000"
+          "log"["e"] * "(BF"["01"] * ") = " * "-214.255" * ", ",
+          widehat(italic("V"))["mean"]^"posterior" * " = " * "0.455" * ", ",
+          "CI"["99%"]^"HDI" * " [" * "0.402" * ", " * "0.508" * "], ",
+          italic("a")["Gunel-Dickey"] * " = " * "1.000"
         )
       )
     )
 
-    testthat::expect_identical(
+    expect_identical(
       expr_text3,
       ggplot2::expr(
         paste(
-          "log"["e"],
-          "(BF"["01"],
-          ") = ",
-          "-213.873",
-          ", ",
-          widehat(italic("V"))["median"]^"posterior",
-          " = ",
-          "0.454",
-          ", CI"["95%"]^"HDI",
-          " [",
-          "0.415",
-          ", ",
-          "0.494",
-          "]",
-          ", ",
-          italic("a")["Gunel-Dickey"],
-          " = ",
-          "1.500"
+          "log"["e"] * "(BF"["01"] * ") = " * "-213.873" * ", ",
+          widehat(italic("V"))["median"]^"posterior" * " = " * "0.454" * ", ",
+          "CI"["95%"]^"HDI" * " [" * "0.417" * ", " * "0.495" * "], ",
+          italic("a")["Gunel-Dickey"] * " = " * "1.500"
         )
       )
     )
@@ -221,35 +159,11 @@ testthat::test_that(
 
 # check edge cases --------------------------------------------
 
-testthat::test_that(
+test_that(
   desc = "check edge cases",
   code = {
     df <- data.frame(x = c("a"))
 
-    testthat::expect_null(bf_contingency_tab(df, x))
-  }
-)
-
-# check edge cases --------------------------------------------
-
-testthat::test_that(
-  desc = "check edge cases",
-  code = {
-    testthat::skip_on_cran()
-
-    # add an empty level
-    df <- mtcars
-    df$am <- as.factor(df$am)
-    levels(df$am) <- c(levels(df$am), 2)
-
-    set.seed(123)
-    res_df <- bf_contingency_tab(df, am, cyl, sampling.plan = "poisson")
-
-    # shouldn't change the result
-    testthat::expect_equal(
-      res_df$bf10[[1]],
-      8.199958,
-      tolerance = 0.001
-    )
+    expect_null(bf_contingency_tab(df, x))
   }
 )

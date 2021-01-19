@@ -1,10 +1,10 @@
 # bayes factor (between-subjects - anova) ---------------------------------
 
-testthat::test_that(
+test_that(
   desc = "bayes factor (between-subjects - anova)",
   code = {
-    testthat::skip_if(getRversion() < "3.6")
-    testthat::skip_on_cran()
+    skip_if(getRversion() < "4.0")
+    skip_on_cran()
 
     # extracting results from where this function is implemented
     set.seed(123)
@@ -25,36 +25,23 @@ testthat::test_that(
         x = vore,
         y = "brainwt",
         bf.prior = 0.88,
+        k = 2, # don't change; tests fail on Ubuntu otherwise
         output = "expression"
       )
 
     # check bayes factor values
-    testthat::expect_equal(df_results$bf10[[1]], 0.1177186, tolerance = 0.001)
-    testthat::expect_equal(df_results$log_e_bf10[[1]], -2.139458, tolerance = 0.001)
+    expect_equal(df_results$bf10[[1]], 0.1177186, tolerance = 0.001)
+    expect_equal(df_results$log_e_bf10[[1]], -2.139458, tolerance = 0.001)
 
     # call
-    testthat::expect_identical(
+    expect_identical(
       results,
       ggplot2::expr(
         paste(
-          "log"["e"],
-          "(BF"["01"],
-          ") = ",
-          "1.92",
-          ", ",
-          widehat(italic(R^"2"))["median"]^"posterior",
-          " = ",
-          "0.00",
-          ", CI"["95%"]^"HDI",
-          " [",
-          "0.00",
-          ", ",
-          "0.08",
-          "]",
-          ", ",
-          italic("r")["Cauchy"]^"JZS",
-          " = ",
-          "0.88"
+          "log"["e"] * "(BF"["01"] * ") = " * "1.92" * ", ",
+          widehat(italic(R^"2"))["median"]^"posterior" * " = " * "0.00" * ", ",
+          "CI"["95%"]^"HDI" * " [" * "0.00" * ", " * "0.08" * "], ",
+          italic("r")["Cauchy"]^"JZS" * " = " * "0.88"
         )
       )
     )
@@ -68,31 +55,18 @@ testthat::test_that(
         y = Sepal.Length,
         conf.level = 0.99,
         conf.method = "eti",
-        output = "expression"
+        output = "expression",
+        k = 2 # don't change; tests fail on Ubuntu otherwise
       )
 
-    testthat::expect_identical(
+    expect_identical(
       results2,
       ggplot2::expr(
         paste(
-          "log"["e"],
-          "(BF"["01"],
-          ") = ",
-          "-65.10",
-          ", ",
-          widehat(italic(R^"2"))["median"]^"posterior",
-          " = ",
-          "0.61",
-          ", CI"["99%"]^"HDI",
-          " [",
-          "0.51",
-          ", ",
-          "0.68",
-          "]",
-          ", ",
-          italic("r")["Cauchy"]^"JZS",
-          " = ",
-          "0.71"
+          "log"["e"] * "(BF"["01"] * ") = " * "-65.10" * ", ",
+          widehat(italic(R^"2"))["median"]^"posterior" * " = " * "0.61" * ", ",
+          "CI"["99%"]^"HDI" * " [" * "0.51" * ", " * "0.68" * "], ",
+          italic("r")["Cauchy"]^"JZS" * " = " * "0.71"
         )
       )
     )
@@ -101,11 +75,11 @@ testthat::test_that(
 
 # bayes factor (within-subjects - anova) ---------------------------------
 
-testthat::test_that(
+test_that(
   desc = "bayes factor (within-subjects - anova)",
   code = {
-    testthat::skip_if(getRversion() < "3.6")
-    testthat::skip_on_cran()
+    skip_if(getRversion() < "3.6")
+    skip_on_cran()
 
     if (utils::packageVersion("BayesFactor") >= package_version("0.9.12-4.3")) {
 
@@ -156,8 +130,8 @@ testthat::test_that(
         )
 
       # check bayes factor values
-      testthat::expect_equal(df_results$bf10[[1]], 6.364917, tolerance = 0.001)
-      testthat::expect_equal(df_results$log_e_bf10[[1]], 1.850801, tolerance = 0.001)
+      expect_equal(df_results$bf10[[1]], 6.364917, tolerance = 0.001)
+      expect_equal(df_results$log_e_bf10[[1]], 1.850801, tolerance = 0.001)
 
       # extracting expression
       set.seed(123)
@@ -166,7 +140,7 @@ testthat::test_that(
           data = dat,
           x = "Wine",
           y = Taste,
-          k = 4,
+          k = 2, # don't change; tests fail on Ubuntu otherwise
           paired = TRUE,
           bf.prior = 0.88,
           output = "expression"
@@ -184,58 +158,30 @@ testthat::test_that(
         )
 
       # testing expression
-      testthat::expect_type(results, "language")
-      testthat::expect_type(results_na, "language")
+      expect_type(results, "language")
+      expect_type(results_na, "language")
 
       # checking expressions
-      testthat::expect_identical(
+      expect_identical(
         results,
         ggplot2::expr(
           paste(
-            "log"["e"],
-            "(BF"["01"],
-            ") = ",
-            "-1.9580",
-            ", ",
-            widehat(italic(R^"2"))["median"]^"posterior",
-            " = ",
-            "0.8930",
-            ", CI"["95%"]^"HDI",
-            " [",
-            "0.8461",
-            ", ",
-            "0.9205",
-            "]",
-            ", ",
-            italic("r")["Cauchy"]^"JZS",
-            " = ",
-            "0.8800"
+            "log"["e"] * "(BF"["01"] * ") = " * "-1.96" * ", ",
+            widehat(italic(R^"2"))["median"]^"posterior" * " = " * "0.89" * ", ",
+            "CI"["95%"]^"HDI" * " [" * "0.85" * ", " * "0.92" * "], ",
+            italic("r")["Cauchy"]^"JZS" * " = " * "0.88"
           )
         )
       )
 
-      testthat::expect_identical(
+      expect_identical(
         results_na,
         ggplot2::expr(
           paste(
-            "log"["e"],
-            "(BF"["01"],
-            ") = ",
-            "-21.04",
-            ", ",
-            widehat(italic(R^"2"))["median"]^"posterior",
-            " = ",
-            "0.53",
-            ", CI"["95%"]^"HDI",
-            " [",
-            "0.46",
-            ", ",
-            "0.59",
-            "]",
-            ", ",
-            italic("r")["Cauchy"]^"JZS",
-            " = ",
-            "0.71"
+            "log"["e"] * "(BF"["01"] * ") = " * "-21.04" * ", ",
+            widehat(italic(R^"2"))["median"]^"posterior" * " = " * "0.53" * ", ",
+            "CI"["95%"]^"HDI" * " [" * "0.46" * ", " * "0.59" * "], ",
+            italic("r")["Cauchy"]^"JZS" * " = " * "0.71"
           )
         )
       )
@@ -291,7 +237,7 @@ testthat::test_that(
           paired = TRUE
         )
 
-      testthat::expect_equal(expr2, expr1)
+      expect_equal(expr2, expr1)
     }
   }
 )

@@ -1,10 +1,10 @@
 # bf_meta_random works ----------------------------------------------------
 
-testthat::test_that(
+test_that(
   desc = "bf_meta_random works",
   code = {
-    testthat::skip_if(getRversion() < "3.6")
-    testthat::skip_on_cran()
+    skip_if(getRversion() < "3.6")
+    skip_on_cran()
 
     # setup
     set.seed(123)
@@ -54,31 +54,17 @@ testthat::test_that(
         top.text = "ayyo"
       ))
 
-    testthat::expect_type(df, "list")
-    testthat::expect_identical(class(df), c("tbl_df", "tbl", "data.frame"))
+    expect_type(df, "list")
+    expect_identical(class(df), c("tbl_df", "tbl", "data.frame"))
 
-    testthat::expect_identical(
+    expect_identical(
       subtitle1,
       ggplot2::expr(
         paste(
-          "log"["e"],
-          "(BF"["01"],
-          ") = ",
-          "-3.341",
-          ", ",
-          widehat(italic(delta))["mean"]^"posterior",
-          " = ",
-          "0.518",
-          ", CI"["95%"]^"HDI",
-          " [",
-          "0.219",
-          ", ",
-          "0.766",
-          "]",
-          ", ",
-          italic("r")["Cauchy"]^"JZS",
-          " = ",
-          "0.300"
+          "log"["e"] * "(BF"["01"] * ") = " * "-3.587" * ", ",
+          widehat(italic(delta))["mean"]^"posterior" * " = " * "0.596" * ", ",
+          "CI"["95%"]^"HDI" * " [" * "0.321" * ", " * "0.854" * "], ",
+          italic("r")["Cauchy"]^"JZS" * " = " * "0.707"
         )
       )
     )

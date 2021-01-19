@@ -81,13 +81,10 @@ bf_contingency_tab <- function(data,
   # one-way or two-way table?
   test <- ifelse(!rlang::quo_is_null(rlang::enquo(y)), "two.way", "one.way")
 
-  # =============================== dataframe ================================
-
   # creating a dataframe
   data %<>%
     dplyr::select(.data = ., {{ x }}, {{ y }}, .counts = {{ counts }}) %>%
-    tidyr::drop_na(.) %>%
-    as_tibble(.)
+    tidyr::drop_na(.)
 
   # untable the dataframe based on the count for each observation
   if (".counts" %in% names(data)) data %<>% tidyr::uncount(data = ., weights = .counts)
@@ -122,15 +119,6 @@ bf_contingency_tab <- function(data,
       return(NULL)
     }
 
-    # estimate log prob of data under null with Monte Carlo
-    # `rdirichlet` function from `MCMCpack`
-    rdirichlet_int <- function(n, alpha) {
-      l <- length(alpha)
-      x <- matrix(stats::rgamma(l * n, alpha), ncol = l, byrow = TRUE)
-      sm <- x %*% rep(1, l)
-      return(x / as.vector(sm))
-    }
-
     # use it
     p1s <- rdirichlet_int(n = 100000, alpha = prior.concentration * ratio)
 
@@ -157,20 +145,14 @@ bf_contingency_tab <- function(data,
         atop(
           displaystyle(top.text),
           expr = paste(
-            "log"["e"],
-            "(BF"["01"],
-            ") = ",
-            bf,
-            ", ",
-            italic("a")["Gunel-Dickey"],
-            " = ",
-            a
+            "log"["e"] * "(BF"["01"] * ") = " * bf * ", ",
+            italic("a")["Gunel-Dickey"] * " = " * a
           )
         ),
         env = list(
           top.text = top.text,
-          bf = specify_decimal_p(x = -log(df$bf10[[1]]), k = k),
-          a = specify_decimal_p(x = df$prior.scale[[1]], k = k)
+          bf = format_num(-log(df$bf10[[1]]), k = k),
+          a = format_num(df$prior.scale[[1]], k = k)
         )
       )
 
@@ -178,10 +160,17 @@ bf_contingency_tab <- function(data,
     if (is.null(top.text)) bf01_expr <- bf01_expr$expr
 
     # return the expression or the dataframe
-    return(switch(
-      EXPR = output,
-      "dataframe" = df,
-      bf01_expr
-    ))
+    return(switch(output, "dataframe" = df, bf01_expr))
   }
+}
+
+
+#' @title estimate log prob of data under null with Monte Carlo
+#' @note `rdirichlet` function from `MCMCpack`
+#' @noRd
+
+rdirichlet_int <- function(n, alpha) {
+  l <- length(alpha)
+  x <- matrix(stats::rgamma(l * n, alpha), ncol = l, byrow = TRUE)
+  x / as.vector(x %*% rep(1, l))
 }

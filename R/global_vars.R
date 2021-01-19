@@ -6,7 +6,7 @@ utils::globalVariables(
     "bf10",
     "rowid",
     "bf.prior",
-    "component",
+    "r2.component",
     "estimate",
     "estimate.LB",
     "estimate.UB",
@@ -15,6 +15,8 @@ utils::globalVariables(
     "hpd95_lower",
     "hpd95_upper",
     "prior.parameter",
+    "prior.scale",
+    "prior.type",
     ".counts"
   ),
   package = "tidyBF",
