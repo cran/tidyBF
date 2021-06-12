@@ -1,3 +1,7 @@
+# tidyBF 0.5.1
+
+  - Maintenance release.
+
 # tidyBF 0.5.0
 
   - Adds retirement notice. All development has now moved to `statsExpressions`.
